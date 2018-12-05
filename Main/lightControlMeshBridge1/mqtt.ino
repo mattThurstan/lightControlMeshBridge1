@@ -45,18 +45,7 @@ void parseMQTT(String targetStr, String msg)
   }
 }
 
-void buildMQTT()
-{
-  
-}
-
-void parseMessages()
-{
-  
-}
-
-void buildMessages()
-{
-  
-}
+void buildMQTT() { }
+void parseMessages() { }
+void buildMessages() { }
 

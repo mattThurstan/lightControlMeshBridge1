@@ -30,55 +30,64 @@
 #include <painlessMesh.h>
 #include <PubSubClient.h>
 #include <WiFiClient.h>
-#include <MT_LightControlDefines.h>
 #include <ESP8266WiFi.h>
 #include <ESPAsyncTCP.h>
+#include <MT_LightControlDefines.h> 
 
-//this bridge will have a button and an auto wifi connection portal for setup
-#define   STATION_SSID     "YourAP_SSID"  //TEMP
-#define   STATION_PASSWORD "YourAP_PWD"   //TEMP
+
+/*----------------------------system----------------------------*/
+const String _progName = "lightControlMeshBridge1"; // bridge Mesh to WIFI
+const String _progVers = "0.5";                     // cleanup
+#define DEBUG 1
 
 // MlC = Mesh light Control
 // LlC = Longboard light Control
-//#define HOSTNAME "lightControlBridge1"
 #define HOSTNAME "MlC_Bridge1"
+//#define HOSTNAME "lightControlBridge1"
 
 // Prototypes
 void receivedCallback( const uint32_t &from, const String &msg );
 void mqttCallback(char* topic, byte* payload, unsigned int length);
 
 IPAddress getlocalIP();
-
 IPAddress myIP(0,0,0,0);
-IPAddress mqttBroker(192, 168, 1, 1);
 
 painlessMesh  mesh;
 WiFiClient wifiClient;
-PubSubClient mqttClient(mqttBroker, 1883, mqttCallback, wifiClient);
+PubSubClient mqttClient(MQTT_BROKER_IP, MQTT_BROKER_PORT, mqttCallback, wifiClient);
+ 
 
+/*----------------------------MAIN----------------------------*/
 void setup() {
   Serial.begin(115200);
-
-  mesh.setDebugMsgTypes( ERROR | STARTUP | CONNECTION );  // set before init() so that you can see startup messages
-
-  // Channel set to 6. Make sure to use the same channel for your mesh and for you other
-  // network (STATION_SSID)
-  mesh.init( MESH_NAME, MESH_PASSWORD, MESH_PORT, WIFI_AP_STA, STATION_CHANNEL );
-  mesh.onReceive(&receivedCallback);
-
-  mesh.stationManual(STATION_SSID, STATION_PASSWORD);
-  mesh.setHostname(HOSTNAME);
+  Serial.println();
   
-  Serial.println("My ID is " + mesh.getNodeId());
+  if (DEBUG) {
+    Serial.println();
+    Serial.print(_progName);
+    Serial.print(" ");
+    Serial.print(_progVers);
+    Serial.println();
+    Serial.print("..");
+    Serial.println();
+  }
+
+  //loadConfig();
+  setupMesh();
 }
 
 void loop() {
   mesh.update();
   mqttClient.loop();
 
-  if(myIP != getlocalIP()){
+  if(myIP != getlocalIP())
+  {
     myIP = getlocalIP();
     Serial.println("My IP is " + myIP.toString());
+    
+    String s = String(mesh.getNodeId());
+    Serial.print("Device Node ID is ");
+    Serial.println(s);
 
     if (mqttClient.connect("meshClient")) {
       mqttClient.publish("mesh/from/bridge","Ready!");
@@ -88,7 +97,7 @@ void loop() {
 }
 
 void receivedCallback( const uint32_t &from, const String &msg ) {
-  Serial.printf("bridge: Received from %u msg=%s\n", from, msg.c_str());
+  if (DEBUG) { Serial.printf("bridge: Received from %u msg=%s\n", from, msg.c_str()); }
   
   uint8_t firstMsgIndex = msg.indexOf(':');
   String targetSub = msg.substring(0, firstMsgIndex);
@@ -132,6 +141,3 @@ void mqttCallback(char* topic, uint8_t* payload, unsigned int length) {
   }
 }
 
-IPAddress getlocalIP() {
-  return IPAddress(mesh.getStationIP());
-}
