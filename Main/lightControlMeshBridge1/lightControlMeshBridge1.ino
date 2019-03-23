@@ -1,6 +1,6 @@
 /*
     'lightControlMeshBridge1' by Thurstan. WIFI to Mesh bridge for MQTT control.
-    Copyright (C) 2018 MTS Standish (mattThurstan)
+    Copyright (C) 2019 MTS Standish (mattThurstan)
     https://github.com/mattThurstan/
 
     Adapted from painlessMesh examples for mqqt network bridging.
@@ -46,8 +46,10 @@
 
 /*----------------------------system----------------------------*/
 const String _progName = "lightControlMeshBridge1"; // bridge Mesh to WIFI
-const String _progVers = "0.560";                   // all working
-#define DEBUG 1
+const String _progVers = "0.562";                   // cleanup, mostly messages, input and debug
+
+boolean DEBUG_GEN = false;                    // realtime serial debugging output - general
+boolean DEBUG_COMMS = false;                  // realtime serial debugging output - comms
 
 // MlC = Mesh light Control
 #define HOSTNAME "MlC_Bridge1"
@@ -69,15 +71,15 @@ void setup() {
   Serial.begin(115200);
   Serial.println();
   
-  if (DEBUG) {
+  //if (DEBUG_GEN) {
     Serial.println();
     Serial.print(_progName);
-    Serial.print(" ");
+    Serial.print(" v");
     Serial.print(_progVers);
     Serial.println();
     Serial.print("..");
     Serial.println();
-  }
+  //}
 
   //loadConfig();
   setupMesh();
@@ -90,12 +92,12 @@ void loop() {
   if(myIP != getlocalIP())
   {
     myIP = getlocalIP();
-    Serial.println("My IP is " + myIP.toString());
-    
-    String s = String(mesh.getNodeId());
-    Serial.print("Device Node ID is ");
-    Serial.println(s);
-    
+    //if (DEBUG_GEN) { 
+      Serial.println("My IP is " + myIP.toString());
+      String s = String(mesh.getNodeId());
+      Serial.print("Device Node ID is ");
+      Serial.println(s);
+    //}
     //Serial.print("Attached Node IDs are ");
     //Serial.println(mesh.subConnectionJson()); //.c_str()
 
