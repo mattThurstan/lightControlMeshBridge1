@@ -47,7 +47,7 @@
 
 /*----------------------------system----------------------------*/
 const String _progName = "lightControlMeshBridge1"; // bridge Mesh to WIFI
-const String _progVers = "0.564";                   // tweaking
+const String _progVers = "0.565";                   // tweaking
 
 boolean DEBUG_GEN = true;                           // realtime serial debugging output - general
 boolean DEBUG_COMMS = true;                         // realtime serial debugging output - comms
@@ -141,8 +141,7 @@ void loop() {
     mqqtConnect(); 
   }
 
-  unsigned long currentMillis = millis();
-  EVERY_N_SECONDS(30) {
+  EVERY_N_SECONDS(10) {
 //    for (SimpleList<uint32_t>::iterator itr = mesh.getNodeList().begin(); itr != mesh.getNodeList().end(); ++itr)
 //    {
 //      Serial.print(*itr);
@@ -163,19 +162,20 @@ void loop() {
 //      node++; 
 //    }
 
-    if (mesh.isConnected(mesh.getNodeId())) { //DEBUG_COMMS && 
-      if (currentMillis - _previousMillis >= _interval) {
-        _previousMillis = currentMillis;
-        if (_ledState == LOW) {
-          _ledState = HIGH;  // Note that this switches the LED *off*
-        } else {
-          _ledState = LOW;  // Note that this switches the LED *on*
-        }
-        digitalWrite(LED_BUILTIN, _ledState);
-      }
-    }
-
   } // END EVERY_N_SECONDS
+  
+  unsigned long currentMillis = millis();
+  if (mesh.isConnected(mesh.getNodeId())) { //DEBUG_COMMS && 
+    if (currentMillis - _previousMillis >= _interval) {
+      _previousMillis = currentMillis;
+      if (_ledState == LOW) {
+        _ledState = HIGH;  // Note that this switches the LED *off*
+      } else {
+        _ledState = LOW;  // Note that this switches the LED *on*
+      }
+      digitalWrite(LED_BUILTIN, _ledState);
+    }
+  }
   
 }
 
