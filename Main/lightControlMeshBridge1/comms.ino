@@ -9,7 +9,7 @@ void setupMesh()
   
   //mesh.init(String ssid, String password, Scheduler *baseScheduler, uint16_t port = 5555, WiFiMode_t connectMode = WIFI_AP_STA, uint8_t channel = 1, uint8_t hidden = 0, uint8_t maxconn = MAX_CONN);
   //mesh.init(String ssid, String password, uint16_t port = 5555, WiFiMode_t connectMode = WIFI_AP_STA, uint8_t channel = 1, uint8_t hidden = 0, uint8_t maxconn = MAX_CONN);
-
+  
   mesh.setRoot(true);
   //mesh.setContainsRoot(true); //don't want to do this in case bridge is taken offline.. in fact, want another node as root, one that is on all the time..
   

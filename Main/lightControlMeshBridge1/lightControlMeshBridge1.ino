@@ -47,7 +47,7 @@
 
 /*----------------------------system----------------------------*/
 const String _progName = "lightControlMeshBridge1"; // bridge Mesh to WIFI
-const String _progVers = "0.565";                   // tweaking
+const String _progVers = "0.566";                   // 
 
 boolean DEBUG_GEN = true;                           // realtime serial debugging output - general
 boolean DEBUG_COMMS = true;                         // realtime serial debugging output - comms
@@ -79,46 +79,44 @@ void nodeTimeAdjustedCallback(int32_t offset) {
 
 PubSubClient mqttClient(MQTT_BROKER_IP, MQTT_BROKER_PORT, mqttCallback, wifiClient);
 
-int _ledState = LOW;
-unsigned long _previousMillis = 0;
-const long _interval = 500;
+//int _ledState = LOW;
+//unsigned long _previousMillis = 0;
+//const long _interval = 500;
 
 /*----------------------------MAIN----------------------------*/
 void setup() {
+  
   Serial.begin(115200);
+  
+  Serial.println();
+  Serial.print(_progName);
+  Serial.print(" v");
+  Serial.print(_progVers);
+  Serial.println();
+  Serial.print("..");
   Serial.println();
   
-  //if (DEBUG_GEN) {
-    Serial.println();
-    Serial.print(_progName);
-    Serial.print(" v");
-    Serial.print(_progVers);
-    Serial.println();
-    Serial.print("..");
-    Serial.println();
-  //}
-  
-  pinMode(LED_BUILTIN, OUTPUT);
-  _ledState = HIGH;  // off
-  digitalWrite(LED_BUILTIN, _ledState);
+//  pinMode(LED_BUILTIN, OUTPUT);
+//  _ledState = HIGH;  // off
+//  digitalWrite(LED_BUILTIN, _ledState);
 
   //loadConfig();
   setupMesh();
+  
 }
 
 void loop() {
+  
   mesh.update();
   mqttClient.loop();
 
   if(myIP != getlocalIP())
   {
     myIP = getlocalIP();
-    //if (DEBUG_GEN) { 
-      Serial.println("My IP is " + myIP.toString());
-      String s = String(mesh.getNodeId());
-      Serial.print("Device Node ID is ");
-      Serial.println(s);
-    //}
+    Serial.println("My IP is " + myIP.toString());
+    String s = String(mesh.getNodeId());
+    Serial.print("Device Node ID is ");
+    Serial.println(s);
     //Serial.print("Attached Node IDs are ");
     //Serial.println(mesh.subConnectionJson()); //.c_str()
 
@@ -141,7 +139,7 @@ void loop() {
     mqqtConnect(); 
   }
 
-  EVERY_N_SECONDS(10) {
+//  EVERY_N_SECONDS(10) {
 //    for (SimpleList<uint32_t>::iterator itr = mesh.getNodeList().begin(); itr != mesh.getNodeList().end(); ++itr)
 //    {
 //      Serial.print(*itr);
@@ -149,11 +147,11 @@ void loop() {
 //    }
 //    Serial.println();
 
-    Serial.print("Attached Node IDs are ");
-    Serial.println(mesh.subConnectionJson()); //.c_str()
+//    Serial.print("Attached Node IDs are ");
+//    Serial.println(mesh.subConnectionJson()); //.c_str()
 
-    nodes = mesh.getNodeList();
-    Serial.printf("Num nodes: %d\n", nodes.size());
+//    nodes = mesh.getNodeList();
+//    Serial.printf("Num nodes: %d\n", nodes.size());
 //    Serial.printf("Attached Node IDs are : ");
     
 //    SimpleList::iterator node = nodes.begin();
@@ -162,20 +160,20 @@ void loop() {
 //      node++; 
 //    }
 
-  } // END EVERY_N_SECONDS
+//  } // END EVERY_N_SECONDS
   
-  unsigned long currentMillis = millis();
-  if (mesh.isConnected(mesh.getNodeId())) { //DEBUG_COMMS && 
-    if (currentMillis - _previousMillis >= _interval) {
-      _previousMillis = currentMillis;
-      if (_ledState == LOW) {
-        _ledState = HIGH;  // Note that this switches the LED *off*
-      } else {
-        _ledState = LOW;  // Note that this switches the LED *on*
-      }
-      digitalWrite(LED_BUILTIN, _ledState);
-    }
-  }
+//  unsigned long currentMillis = millis();
+//  if (mesh.isConnected(mesh.getNodeId())) { //DEBUG_COMMS && 
+//    if (currentMillis - _previousMillis >= _interval) {
+//      _previousMillis = currentMillis;
+//      if (_ledState == LOW) {
+//        _ledState = HIGH;  // Note that this switches the LED *off*
+//      } else {
+//        _ledState = LOW;  // Note that this switches the LED *on*
+//      }
+//      digitalWrite(LED_BUILTIN, _ledState);
+//    }
+//  }
   
 }
 

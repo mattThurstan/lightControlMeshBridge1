@@ -13,6 +13,8 @@ void mqqtConnect()
       mqttClient.subscribe("house/longboard1/#");
       mqttClient.subscribe("house/leaningbookshelves1/#");
       mqttClient.subscribe("house/testNode/#");
+      mqttClient.subscribe("sunrise");
+      mqttClient.subscribe("sunset");
       if (DEBUG_COMMS) { Serial.printf("MQTT connected."); Serial.println(); }
     }
 }
@@ -87,16 +89,6 @@ void mqttCallback(char* topic, uint8_t* payload, unsigned int length) {
   }
   else if(targetStr == "sunrise") { mesh.sendBroadcast(msg); }
   else if(targetStr == "sunset") { mesh.sendBroadcast(msg); }
-  else if(targetStr == "debug/general") 
-  {
-    if(msg == "ON") { DEBUG_GEN = true; } 
-    else if(msg == "OFF") { DEBUG_GEN = false; }
-  }
-  else if(targetStr == "debug/comms") 
-  {
-    if(msg == "ON") { DEBUG_COMMS = true; } 
-    else if(msg == "OFF") { DEBUG_COMMS = false; }
-  }
   else
   {
     parseMQTT(targetStr, msg);
@@ -121,9 +113,11 @@ void parseMQTT(String topic, String msg)
   }
   
   //get target by way of device name
-  //uint32_t target = strtoul(targetNode.c_str(), NULL, 10);
+  //uint32_t target = strtoul(targetNode.c_str(), NULL, 10);bridge1
   uint32_t target;
-  if (targetNode == "stairs1")
+  if (targetNode == "bridge1")
+  { target = 1; } 
+  else if (targetNode == "stairs1")
   { target = DEVICE_ID_STAIRS1; } 
   else if (targetNode == "desk1")
   { target = DEVICE_ID_DESK1; } 
@@ -139,7 +133,18 @@ void parseMQTT(String topic, String msg)
   { target = DEVICE_ID_LEANINGBOOKSHELVES1; }
 
   if (target == 0) { /* SYSTEM SPARE */ }
-  else if (target == 1) { /* SYSTEM SPARE */ }
+  else if (target == 1) { 
+    if (targetSub == "debug/general") 
+    {
+      if(msg == "ON") { DEBUG_GEN = true; } 
+      else if(msg == "OFF") { DEBUG_GEN = false; }
+    }
+    else if(targetSub == "debug/comms") 
+    {
+      if(msg == "ON") { DEBUG_COMMS = true; } 
+      else if(msg == "OFF") { DEBUG_COMMS = false; }
+    }
+  }b
   else if (target == 2) { /* SYSTEM SPARE */ }
   else {
     if (mesh.isConnected(target))
