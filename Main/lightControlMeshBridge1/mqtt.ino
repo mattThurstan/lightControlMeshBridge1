@@ -13,6 +13,7 @@ void mqqtConnect()
       mqttClient.subscribe("house/longboard1/#");
       mqttClient.subscribe("house/leaningbookshelves1/#");
       mqttClient.subscribe("house/testNode/#");
+      if (DEBUG_COMMS) { Serial.printf("MQTT connected."); Serial.println(); }
     }
 }
 
