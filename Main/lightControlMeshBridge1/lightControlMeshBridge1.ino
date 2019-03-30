@@ -47,13 +47,15 @@
 
 /*----------------------------system----------------------------*/
 const String _progName = "lightControlMeshBridge1"; // bridge Mesh to WIFI
-const String _progVers = "0.566";                   // 
+const String _progVers = "0.567";                   // non-blocking mqtt reconnect and last will 'n testament
 
 boolean DEBUG_GEN = true;                           // realtime serial debugging output - general
 boolean DEBUG_COMMS = true;                         // realtime serial debugging output - comms
 
 
 #define HOSTNAME "MlC_Bridge1"                      // MlC = Mesh light Control
+#define WILL_TOPIC "house/bridge1/available"
+#define WILL_MESSAGE "offline"
 
 IPAddress getlocalIP();
 IPAddress myIP(0,0,0,0);
@@ -79,9 +81,11 @@ void nodeTimeAdjustedCallback(int32_t offset) {
 
 PubSubClient mqttClient(MQTT_BROKER_IP, MQTT_BROKER_PORT, mqttCallback, wifiClient);
 
+
 //int _ledState = LOW;
 //unsigned long _previousMillis = 0;
-//const long _interval = 500;
+unsigned long _lastReconnectAttempt = 0;
+const long _interval = 5000;
 
 /*----------------------------MAIN----------------------------*/
 void setup() {
@@ -103,12 +107,13 @@ void setup() {
   //loadConfig();
   setupMesh();
   
+  delay(1500);
+  _lastReconnectAttempt = 0;
 }
 
 void loop() {
   
   mesh.update();
-  mqttClient.loop();
 
   if(myIP != getlocalIP())
   {
@@ -136,9 +141,38 @@ void loop() {
 //    }
 //    Serial.println();
 
-    mqqtConnect(); 
+    //mqqtConnect(); 
   }
 
+//  unsigned long currentMillis = millis();
+//  if (!mqttClient.connected()) {
+//    // reconnect
+//  } else {
+//    if (currentMillis - _previousMillis >= _interval) {
+//      _previousMillis = currentMillis;
+//      //mqttClient.publish("house/bridge1/available","online");
+//      //if (DEBUG_COMMS) { Serial.println("bridge: Sent msg available online"); }
+//    }
+//  }
+  
+//  mqttClient.loop();
+
+  if (!mqttClient.connected()) {
+    unsigned long now = millis();
+    if (now - _lastReconnectAttempt > _interval) {
+      _lastReconnectAttempt = now;
+      // Attempt to reconnect
+      if (mqttReconnect()) {
+        _lastReconnectAttempt = 0;
+      }
+    }
+  } else {
+    // Client connected
+    mqttClient.loop();
+  }
+  
+} // END setup
+  
 //  EVERY_N_SECONDS(10) {
 //    for (SimpleList<uint32_t>::iterator itr = mesh.getNodeList().begin(); itr != mesh.getNodeList().end(); ++itr)
 //    {
@@ -175,6 +209,5 @@ void loop() {
 //    }
 //  }
   
-}
 
 

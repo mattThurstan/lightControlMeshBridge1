@@ -3,7 +3,9 @@ void mqqtConnect()
 {
     if (mqttClient.connect(HOSTNAME, MQTT_BROKER_USERNAME, MQTT_BROKER_PASSWORD))   // "thurstanMeshBridge"
     {
-      mqttClient.publish("mesh/from/bridge1","Ready!");
+      //mqttClient.publish("mesh/from/bridge1","Ready!");
+      mqttClient.publish("house/bridge1/available","online");
+      mqttClient.publish("house/bridge1/status","ON");
       mqttClient.subscribe("mesh/to/#");
       mqttClient.subscribe("house/bridge1/#");
       mqttClient.subscribe("house/stairs1/#");
@@ -17,6 +19,29 @@ void mqqtConnect()
       mqttClient.subscribe("sunset");
       if (DEBUG_COMMS) { Serial.printf("MQTT connected."); Serial.println(); }
     }
+}
+
+boolean mqttReconnect() 
+{
+  if (mqttClient.connect(HOSTNAME, MQTT_BROKER_USERNAME, MQTT_BROKER_PASSWORD, WILL_TOPIC, 0, true, WILL_MESSAGE)) {
+    // Once connected, publish an announcement...
+    mqttClient.publish("house/bridge1/available","online");
+    mqttClient.publish("house/bridge1/status","ON");
+    // ... and resubscribe
+    mqttClient.subscribe("mesh/to/#");
+    mqttClient.subscribe("house/bridge1/#");
+    mqttClient.subscribe("house/stairs1/#");
+    mqttClient.subscribe("house/desk1/#");
+    mqttClient.subscribe("house/desk2/#");
+    mqttClient.subscribe("house/kitchen1/#");
+    mqttClient.subscribe("house/longboard1/#");
+    mqttClient.subscribe("house/leaningbookshelves1/#");
+    mqttClient.subscribe("house/testNode/#");
+    mqttClient.subscribe("sunrise");
+    mqttClient.subscribe("sunset");
+    if (DEBUG_COMMS) { Serial.printf("MQTT connected."); Serial.println(); }
+  }
+  return mqttClient.connected();
 }
 
 /*----------------------------MQTT callbacks----------------------------*/
@@ -134,17 +159,31 @@ void parseMQTT(String topic, String msg)
 
   if (target == 0) { /* SYSTEM SPARE */ }
   else if (target == 1) { 
+    String o1 = "ON";
+    String o2 = "OFF";
     if (targetSub == "debug/general") 
     {
-      if(msg == "ON") { DEBUG_GEN = true; } 
-      else if(msg == "OFF") { DEBUG_GEN = false; }
+      if(msg == "ON") { 
+        DEBUG_GEN = true;
+        mqttClient.publish("house/bridge1/debug/general", o1.c_str());
+      } 
+      else if(msg == "OFF") { 
+        DEBUG_GEN = false; 
+        mqttClient.publish("house/bridge1/debug/general", o2.c_str()); 
+      }
     }
     else if(targetSub == "debug/comms") 
     {
-      if(msg == "ON") { DEBUG_COMMS = true; } 
-      else if(msg == "OFF") { DEBUG_COMMS = false; }
+      if(msg == "ON") { 
+        DEBUG_COMMS = true;
+        mqttClient.publish("house/bridge1/debug/comms", o1.c_str()); 
+      } 
+      else if(msg == "OFF") { 
+        DEBUG_COMMS = false;
+        mqttClient.publish("house/bridge1/debug/comms", o1.c_str()); 
+      }
     }
-  }b
+  }
   else if (target == 2) { /* SYSTEM SPARE */ }
   else {
     if (mesh.isConnected(target))

@@ -1,7 +1,7 @@
 /*----------------------------comms----------------------------*/
 void setupMesh()
 {
-  mesh.setDebugMsgTypes( ERROR | STARTUP | CONNECTION );  // set before init() so that you can see startup messages
+  mesh.setDebugMsgTypes( ERROR | STARTUP );  // | CONNECTION set before init() so that you can see startup messages
 
   // Channel set to .. Make sure to use the same channel for your mesh and for you other
   // network (STATION_SSID)
