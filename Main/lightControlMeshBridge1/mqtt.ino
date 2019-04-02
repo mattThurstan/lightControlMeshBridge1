@@ -40,6 +40,7 @@ boolean mqttReconnect()
     mqttClient.subscribe("sunrise");
     mqttClient.subscribe("sunset");
     if (DEBUG_COMMS) { Serial.printf("MQTT connected."); Serial.println(); }
+    checkDevicesStatus();
   }
   return mqttClient.connected();
 }
@@ -47,7 +48,7 @@ boolean mqttReconnect()
 /*----------------------------MQTT callbacks----------------------------*/
 // callback for Mesh messages
 void receivedCallback( const uint32_t &from, const String &msg ) {
-  if (DEBUG_COMMS) { Serial.printf("bridge: Received from %u msg=%s\n", from, msg.c_str()); }
+  if (DEBUG_COMMS) { Serial.printf("bridge: Received from %u msg=%s\n", from, msg.c_str()); Serial.println(); }
   
   uint8_t firstMsgIndex = msg.indexOf(':');
   String targetSub = msg.substring(0, firstMsgIndex);
@@ -73,6 +74,8 @@ void receivedCallback( const uint32_t &from, const String &msg ) {
   //{ topic += "testNode/"; }
   else if (from == DEVICE_ID_LEANINGBOOKSHELVES1)
   { topic += "leaningbookshelves1/"; }
+  else if (from == DEVICE_ID_FUTONBED1)
+  { topic += "futonbed1/"; }
   
   topic += targetSub;
   mqttClient.publish(topic.c_str(), msgSub.c_str());
@@ -80,7 +83,7 @@ void receivedCallback( const uint32_t &from, const String &msg ) {
 
 // callback for LAN messages
 void mqttCallback(char* topic, uint8_t* payload, unsigned int length) {
-  if (DEBUG_COMMS) { Serial.printf("bridge: Received MQTT from network: msg=%s\n", topic); }
+  if (DEBUG_COMMS) { Serial.printf("bridge: Received MQTT from network: msg=%s\n", topic); Serial.println(); }
   
   char* cleanPayload = (char*)malloc(length+1);
   payload[length] = '\0';
@@ -96,7 +99,7 @@ void mqttCallback(char* topic, uint8_t* payload, unsigned int length) {
     if(msg == "getNodes")
     {
       mqttClient.publish("mesh/from/bridge", mesh.subConnectionJson().c_str());
-      if (DEBUG_COMMS) { Serial.printf("bridge: Sent msg to mesh: targetStr=%s\n", topic); }
+      if (DEBUG_COMMS) { Serial.printf("bridge: Sent msg to mesh: targetStr=%s\n", topic); Serial.println(); }
     }
   }
   else if(targetStr == "mesh/to/all") 
@@ -135,6 +138,8 @@ void parseMQTT(String topic, String msg)
   if (DEBUG_COMMS) { 
     Serial.printf("parseMQTT targetSub: ");
     Serial.println(targetSub);
+    Serial.printf("parseMQTT msg: ");
+    Serial.println(msg);
   }
   
   //get target by way of device name
@@ -156,31 +161,45 @@ void parseMQTT(String topic, String msg)
   //{ target = DEVICE_ID_LONGBOARD1; }
   else if (targetNode == "leaningbookshelves1")
   { target = DEVICE_ID_LEANINGBOOKSHELVES1; }
+  else if (targetNode == "futonbed1" )
+  { target = DEVICE_ID_FUTONBED1; }
 
   if (target == 0) { /* SYSTEM SPARE */ }
   else if (target == 1) { 
     String o1 = "ON";
     String o2 = "OFF";
-    if (targetSub == "debug/general") 
+    if (targetSub == "debug/general/set") 
     {
       if(msg == "ON") { 
         DEBUG_GEN = true;
-        mqttClient.publish("house/bridge1/debug/general", o1.c_str());
+        mqttClient.publish("house/bridge1/debug/general/status", o1.c_str());
       } 
       else if(msg == "OFF") { 
         DEBUG_GEN = false; 
-        mqttClient.publish("house/bridge1/debug/general", o2.c_str()); 
+        mqttClient.publish("house/bridge1/debug/general/status", o2.c_str()); 
       }
     }
-    else if(targetSub == "debug/comms") 
+    else if(targetSub == "debug/comms/set") 
     {
       if(msg == "ON") { 
         DEBUG_COMMS = true;
-        mqttClient.publish("house/bridge1/debug/comms", o1.c_str()); 
+        mqttClient.publish("house/bridge1/debug/comms/status", o1.c_str()); 
       } 
       else if(msg == "OFF") { 
         DEBUG_COMMS = false;
-        mqttClient.publish("house/bridge1/debug/comms", o1.c_str()); 
+        mqttClient.publish("house/bridge1/debug/comms/status", o1.c_str()); 
+      }
+    }
+    else if(targetSub == "debug/available/scan") 
+    {
+      if(msg == "ON") { 
+        //DEBUG_COMMS = true;
+        checkDevicesStatus();
+        //mqttClient.publish("house/bridge1/debug/comms/status", o1.c_str()); 
+      } 
+      else if(msg == "OFF") { 
+        //DEBUG_COMMS = false;
+        //mqttClient.publish("house/bridge1/debug/comms/status", o1.c_str()); 
       }
     }
   }
@@ -210,9 +229,50 @@ void parseMQTT(String topic, String msg)
       mqttClient.publish("mesh/from/bridge", sm.c_str());
     }
   }
+  Serial.println();
 }
 
 void buildMQTT() { }
 void parseMessages() { }
 void buildMessages() { }
+
+void checkDevicesStatus() {
+  // check the mesh to see if known devices are online
+  uint32_t target;
+  String cd1 = "h";
+  //String ds = DEVICE_OFFLINE;
+  String ds = "offline";
+  for (int i = 0; i < 8; i++) 
+  {
+    if (i == 0) { target = DEVICE_ID_BRIDGE1; cd1 = "bridge1/"; }
+    else if (i == 1) { target = DEVICE_ID_STAIRS1; cd1 = "house/stairs1/available"; }
+    else if (i == 2) { target = DEVICE_ID_DESK1; cd1 = "house/desk1/available"; }
+    else if (i == 3) { target = DEVICE_ID_DESK2; cd1 = "house/desk2/available"; }
+    else if (i == 4) { target = DEVICE_ID_KITCHEN1; cd1 = "house/kitchen1/available"; }
+    else if (i == 5) { target = DEVICE_ID_LONGBOARD1; cd1 = "house/longboard1/available"; }
+    else if (i == 6) { target = DEVICE_ID_LEANINGBOOKSHELVES1; cd1 = "house/leaningbookshelves1/available"; }
+    else if (i == 7) { target = DEVICE_ID_FUTONBED1; cd1 = "house/futonbed1/available"; }
+
+    if (mesh.isConnected(target)) {
+      // is device is online then broadcast online mqtt message
+      //ds = DEVICE_ONLINE;
+      ds = "online";
+    } else {
+      // is device is online then broadcast offline mqtt message
+      //ds = DEVICE_OFFLINE;
+      ds = "offline";
+    }
+    mqttClient.publish(cd1.c_str(), ds.c_str());
+    
+    if (DEBUG_COMMS) { 
+      Serial.print("bridge: Check and publish device online status, "); 
+      Serial.print(cd1);
+      Serial.print(" - ");
+      Serial.print(ds); 
+      Serial.println(); 
+    }
+    
+  }
+  //if (DEBUG_COMMS) { Serial.printf("bridge: Checked devices online status."); Serial.println(); }
+}
 

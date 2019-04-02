@@ -35,6 +35,8 @@
 //       
 //************************************************************
 
+/*----------------------------libraries----------------------------*/
+// board running at [ this-> 80mhz || 1600mhz ]
 #include <Arduino.h>
 #include <FastLED.h>                          // WS2812B LED strip control and effects
 #include <painlessMesh.h>
@@ -47,7 +49,7 @@
 
 /*----------------------------system----------------------------*/
 const String _progName = "lightControlMeshBridge1"; // bridge Mesh to WIFI
-const String _progVers = "0.567";                   // non-blocking mqtt reconnect and last will 'n testament
+const String _progVers = "0.568";                   // mqtt reconnect and devices online
 
 boolean DEBUG_GEN = true;                           // realtime serial debugging output - general
 boolean DEBUG_COMMS = true;                         // realtime serial debugging output - comms
@@ -68,10 +70,12 @@ void receivedCallback( const uint32_t &from, const String &msg );
 void mqttCallback(char* topic, byte* payload, unsigned int length);
 
 void newConnectionCallback(uint32_t nodeId) {
+  checkDevicesStatus();
   if (DEBUG_COMMS) { Serial.printf("--> lightControlMeshBridge1: New Connection, nodeId = %u\n", nodeId); }
 }
 
 void changedConnectionCallback() {
+  checkDevicesStatus();
   if (DEBUG_COMMS) { Serial.printf("Changed connections %s\n",mesh.subConnectionJson().c_str()); }
 }
 
@@ -157,8 +161,8 @@ void loop() {
   
 //  mqttClient.loop();
 
-  if (!mqttClient.connected()) {
     unsigned long now = millis();
+  if (!mqttClient.connected()) {
     if (now - _lastReconnectAttempt > _interval) {
       _lastReconnectAttempt = now;
       // Attempt to reconnect
@@ -168,6 +172,7 @@ void loop() {
     }
   } else {
     // Client connected
+    //checkDevicesStatus(); // this needs to be every 30 secs or more
     mqttClient.loop();
   }
   
