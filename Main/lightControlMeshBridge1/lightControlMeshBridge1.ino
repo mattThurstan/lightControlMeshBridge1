@@ -49,7 +49,7 @@
 
 /*----------------------------system----------------------------*/
 const String _progName = "lightControlMeshBridge1"; // bridge Mesh to WIFI
-const String _progVers = "0.568";                   // mqtt reconnect and devices online
+const String _progVers = "0.570";                   // mqtt bridge online status
 
 boolean DEBUG_GEN = true;                           // realtime serial debugging output - general
 boolean DEBUG_COMMS = true;                         // realtime serial debugging output - comms
@@ -80,6 +80,7 @@ void changedConnectionCallback() {
 }
 
 void nodeTimeAdjustedCallback(int32_t offset) {
+  checkDevicesStatus(); // ..too much?
   if (DEBUG_COMMS) { Serial.printf("Adjusted time %u. Offset = %d\n", mesh.getNodeTime(),offset); }
 }
 
@@ -214,5 +215,3 @@ void loop() {
 //    }
 //  }
   
-
-

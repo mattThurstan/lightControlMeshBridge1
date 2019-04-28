@@ -244,7 +244,7 @@ void checkDevicesStatus() {
   String ds = "offline";
   for (int i = 0; i < 8; i++) 
   {
-    if (i == 0) { target = DEVICE_ID_BRIDGE1; cd1 = "bridge1/"; }
+    if (i == 0) { target = DEVICE_ID_BRIDGE1; cd1 = "bridge1/available"; }
     else if (i == 1) { target = DEVICE_ID_STAIRS1; cd1 = "house/stairs1/available"; }
     else if (i == 2) { target = DEVICE_ID_DESK1; cd1 = "house/desk1/available"; }
     else if (i == 3) { target = DEVICE_ID_DESK2; cd1 = "house/desk2/available"; }
@@ -262,6 +262,7 @@ void checkDevicesStatus() {
       //ds = DEVICE_OFFLINE;
       ds = "offline";
     }
+    if (i == 0) { ds = "online"; }  // hack cos we know this (bridge) is online
     mqttClient.publish(cd1.c_str(), ds.c_str());
     
     if (DEBUG_COMMS) { 
@@ -275,4 +276,3 @@ void checkDevicesStatus() {
   }
   //if (DEBUG_COMMS) { Serial.printf("bridge: Checked devices online status."); Serial.println(); }
 }
-
