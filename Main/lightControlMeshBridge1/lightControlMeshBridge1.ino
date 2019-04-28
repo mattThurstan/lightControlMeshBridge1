@@ -49,7 +49,7 @@
 
 /*----------------------------system----------------------------*/
 const String _progName = "lightControlMeshBridge1"; // bridge Mesh to WIFI
-const String _progVers = "0.570";                   // mqtt bridge online status
+const String _progVers = "0.571";                   // added global "breath" message
 
 boolean DEBUG_GEN = true;                           // realtime serial debugging output - general
 boolean DEBUG_COMMS = true;                         // realtime serial debugging output - comms

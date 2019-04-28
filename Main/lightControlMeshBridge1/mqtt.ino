@@ -117,6 +117,7 @@ void mqttCallback(char* topic, uint8_t* payload, unsigned int length) {
   }
   else if(targetStr == "sunrise") { mesh.sendBroadcast(msg); }
   else if(targetStr == "sunset") { mesh.sendBroadcast(msg); }
+  else if(targetStr == "breath") { mesh.sendBroadcast(msg); }
   else
   {
     parseMQTT(targetStr, msg);
