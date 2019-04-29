@@ -49,7 +49,7 @@
 
 /*----------------------------system----------------------------*/
 const String _progName = "lightControlMeshBridge1"; // bridge Mesh to WIFI
-const String _progVers = "0.571";                   // added global "breath" message
+const String _progVers = "0.572";                   // tweaks and mqtt status requests
 
 boolean DEBUG_GEN = true;                           // realtime serial debugging output - general
 boolean DEBUG_COMMS = true;                         // realtime serial debugging output - comms
@@ -105,10 +105,6 @@ void setup() {
   Serial.print("..");
   Serial.println();
   
-//  pinMode(LED_BUILTIN, OUTPUT);
-//  _ledState = HIGH;  // off
-//  digitalWrite(LED_BUILTIN, _ledState);
-
   //loadConfig();
   setupMesh();
   

@@ -188,7 +188,7 @@ void parseMQTT(String topic, String msg)
       } 
       else if(msg == "OFF") { 
         DEBUG_COMMS = false;
-        mqttClient.publish("house/bridge1/debug/comms/status", o1.c_str()); 
+        mqttClient.publish("house/bridge1/debug/comms/status", o2.c_str()); 
       }
     }
     else if(targetSub == "debug/available/scan") 
@@ -258,6 +258,13 @@ void checkDevicesStatus() {
       // is device is online then broadcast online mqtt message
       //ds = DEVICE_ONLINE;
       ds = "online";
+
+      //send status request message to target
+      String ts = "status/request";
+      ts += ":";
+      ts += "ON";
+      mesh.sendSingle(target, ts);
+      
     } else {
       // is device is online then broadcast offline mqtt message
       //ds = DEVICE_OFFLINE;
