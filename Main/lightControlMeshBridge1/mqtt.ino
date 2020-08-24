@@ -230,7 +230,7 @@ void parseMQTT(String topic, String msg)
       mqttClient.publish("mesh/from/bridge", sm.c_str());
     }
   }
-  Serial.println();
+  if (DEBUG_COMMS) { Serial.println(); }
 }
 
 void buildMQTT() { }

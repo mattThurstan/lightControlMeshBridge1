@@ -1,9 +1,12 @@
 /*
     'lightControlMeshBridge1' by Thurstan. WIFI to Mesh bridge for MQTT control.
-    Copyright (C) 2019 MTS Standish (mattThurstan)
+    Copyright (C) 2020 MTS Standish (Thurstan|mattKsp)
+    
     https://github.com/mattThurstan/
 
     Adapted from painlessMesh examples for mqqt network bridging.
+    
+    WeMos D1 (R2 &) mini ESP8266, 80 MHz, 115200 baud, 4M, (1M SPIFFS)
 */
 
 //************************************************************
@@ -36,10 +39,8 @@
 //************************************************************
 
 /*----------------------------libraries----------------------------*/
-// board running at [ this-> 80mhz || 1600mhz ]
 #include <Arduino.h>
-#include <FastLED.h>                          // WS2812B LED strip control and effects
-#include <painlessMesh.h>
+#include <painlessMesh.h>                           // https://github.com/gmag11/painlessMesh
 #include <PubSubClient.h>
 #include <WiFiClient.h>
 #include <ESP8266WiFi.h>
@@ -49,10 +50,10 @@
 
 /*----------------------------system----------------------------*/
 const String _progName = "lightControlMeshBridge1"; // bridge Mesh to WIFI
-const String _progVers = "0.572";                   // tweaks and mqtt status requests
+const String _progVers = "0.575";                   // cleanup for new install
 
-boolean DEBUG_GEN = true;                           // realtime serial debugging output - general
-boolean DEBUG_COMMS = true;                         // realtime serial debugging output - comms
+boolean DEBUG_GEN = true;                          // realtime serial debugging output - general
+boolean DEBUG_COMMS = true;                        // realtime serial debugging output - comms
 
 
 #define HOSTNAME "MlC_Bridge1"                      // MlC = Mesh light Control
@@ -95,6 +96,7 @@ const long _interval = 5000;
 /*----------------------------MAIN----------------------------*/
 void setup() {
   
+  // start serial regardless but control debug output from mqtt
   Serial.begin(115200);
   
   Serial.println();
@@ -108,6 +110,16 @@ void setup() {
   //loadConfig();
   setupMesh();
   
+  //everything done? ok then..
+  Serial.print(F("Setup done"));
+  Serial.println("-----");
+  Serial.print(F("Device Node ID is "));
+  String s = String(mesh.getNodeId());
+  Serial.println(s);
+  Serial.println("-----");
+  Serial.println("");
+  
+  
   delay(1500);
   _lastReconnectAttempt = 0;
 }
@@ -119,10 +131,12 @@ void loop() {
   if(myIP != getlocalIP())
   {
     myIP = getlocalIP();
-    Serial.println("My IP is " + myIP.toString());
-    String s = String(mesh.getNodeId());
-    Serial.print("Device Node ID is ");
-    Serial.println(s);
+    if (DEBUG_COMMS) { 
+      Serial.println("My IP is " + myIP.toString());
+      String s = String(mesh.getNodeId());
+      Serial.print("Device Node ID is ");
+      Serial.println(s);
+    }
     //Serial.print("Attached Node IDs are ");
     //Serial.println(mesh.subConnectionJson()); //.c_str()
 
