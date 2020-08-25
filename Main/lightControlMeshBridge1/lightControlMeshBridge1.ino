@@ -35,6 +35,8 @@
 // house/kitchen1/#
 // house/longboard1/#
 // house/leaningbookshelves1/#
+// house/futonbed1/#
+// house/livingroomdivider1/#
 //       
 //************************************************************
 
@@ -50,10 +52,10 @@
 
 /*----------------------------system----------------------------*/
 const String _progName = "lightControlMeshBridge1"; // bridge Mesh to WIFI
-const String _progVers = "0.575";                   // cleanup for new install
+const String _progVers = "0.576";                   // moved some strings
 
-boolean DEBUG_GEN = true;                          // realtime serial debugging output - general
-boolean DEBUG_COMMS = true;                        // realtime serial debugging output - comms
+boolean DEBUG_GEN = false;                          // realtime serial debugging output - general
+boolean DEBUG_COMMS = false;                        // realtime serial debugging output - comms
 
 
 #define HOSTNAME "MlC_Bridge1"                      // MlC = Mesh light Control

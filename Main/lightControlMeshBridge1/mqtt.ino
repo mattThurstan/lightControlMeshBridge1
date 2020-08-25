@@ -7,13 +7,15 @@ void mqqtConnect()
       mqttClient.publish("house/bridge1/available","online");
       mqttClient.publish("house/bridge1/status","ON");
       mqttClient.subscribe("mesh/to/#");
-      mqttClient.subscribe("house/bridge1/#");
-      mqttClient.subscribe("house/stairs1/#");
-      mqttClient.subscribe("house/desk1/#");
-      mqttClient.subscribe("house/desk2/#");
-      mqttClient.subscribe("house/kitchen1/#");
-      mqttClient.subscribe("house/longboard1/#");
-      mqttClient.subscribe("house/leaningbookshelves1/#");
+      mqttClient.subscribe(DEVICE_SUB_BRIDGE1);
+      mqttClient.subscribe(DEVICE_SUB_STAIRS1);
+      mqttClient.subscribe(DEVICE_SUB_DESK1);
+      mqttClient.subscribe(DEVICE_SUB_DESK2);
+      mqttClient.subscribe(DEVICE_SUB_KITCHEN1);
+      mqttClient.subscribe(DEVICE_SUB_LONGBOARD1);
+      mqttClient.subscribe(DEVICE_SUB_LEANINGBOOKSHELVES1);
+      mqttClient.subscribe(DEVICE_SUB_FUTONBED1);
+      mqttClient.subscribe(DEVICE_SUB_LIVINGROOMDIVIDER1);
       mqttClient.subscribe("house/testNode/#");
       mqttClient.subscribe("sunrise");
       mqttClient.subscribe("sunset");
@@ -29,13 +31,15 @@ boolean mqttReconnect()
     mqttClient.publish("house/bridge1/status","ON");
     // ... and resubscribe
     mqttClient.subscribe("mesh/to/#");
-    mqttClient.subscribe("house/bridge1/#");
-    mqttClient.subscribe("house/stairs1/#");
-    mqttClient.subscribe("house/desk1/#");
-    mqttClient.subscribe("house/desk2/#");
-    mqttClient.subscribe("house/kitchen1/#");
-    mqttClient.subscribe("house/longboard1/#");
-    mqttClient.subscribe("house/leaningbookshelves1/#");
+    mqttClient.subscribe(DEVICE_SUB_BRIDGE1);
+    mqttClient.subscribe(DEVICE_SUB_STAIRS1);
+    mqttClient.subscribe(DEVICE_SUB_DESK1);
+    mqttClient.subscribe(DEVICE_SUB_DESK2);
+    mqttClient.subscribe(DEVICE_SUB_KITCHEN1);
+    mqttClient.subscribe(DEVICE_SUB_LONGBOARD1);
+    mqttClient.subscribe(DEVICE_SUB_LEANINGBOOKSHELVES1);
+    mqttClient.subscribe(DEVICE_SUB_FUTONBED1);
+    mqttClient.subscribe(DEVICE_SUB_LIVINGROOMDIVIDER1);
     mqttClient.subscribe("house/testNode/#");
     mqttClient.subscribe("sunrise");
     mqttClient.subscribe("sunset");
@@ -61,21 +65,21 @@ void receivedCallback( const uint32_t &from, const String &msg ) {
   
   String topic = "house/";
   if (from == DEVICE_ID_STAIRS1)
-  { topic += "stairs1/"; } 
+  { topic += DEVICE_TOP_STAIRS1; } 
   else if (from == DEVICE_ID_DESK1)
-  { topic += "desk1/"; } 
+  { topic += DEVICE_TOP_DESK1; } 
   else if (from == DEVICE_ID_DESK2)
-  { topic += "desk2/"; } 
+  { topic += DEVICE_TOP_DESK2; } 
   else if (from == DEVICE_ID_KITCHEN1)
-  { topic += "kitchen1/"; } 
+  { topic += DEVICE_TOP_KITCHEN1; } 
   else if (from == DEVICE_ID_LONGBOARD1)
-  { topic += "longboard1/"; }
-  //else if (from == DEVICE_ID_LONGBOARD1)
-  //{ topic += "testNode/"; }
+  { topic += DEVICE_TOP_LONGBOARD1; }
   else if (from == DEVICE_ID_LEANINGBOOKSHELVES1)
-  { topic += "leaningbookshelves1/"; }
+  { topic += DEVICE_TOP_LEANINGBOOKSHELVES1; }
   else if (from == DEVICE_ID_FUTONBED1)
-  { topic += "futonbed1/"; }
+  { topic += DEVICE_TOP_FUTONBED1; }
+  else if (from == DEVICE_ID_LIVINGROOMDIVIDER1)
+  { topic += DEVICE_TOP_LIVINGROOMDIVIDER1; }
   
   topic += targetSub;
   mqttClient.publish(topic.c_str(), msgSub.c_str());
@@ -146,24 +150,24 @@ void parseMQTT(String topic, String msg)
   //get target by way of device name
   //uint32_t target = strtoul(targetNode.c_str(), NULL, 10);bridge1
   uint32_t target;
-  if (targetNode == "bridge1")
-  { target = 1; } 
-  else if (targetNode == "stairs1")
+  if (targetNode == DEVICE_NOD_BRIDGE1)
+  { target = 1; }
+  else if (targetNode == DEVICE_NOD_STAIRS1)
   { target = DEVICE_ID_STAIRS1; } 
-  else if (targetNode == "desk1")
+  else if (targetNode == DEVICE_NOD_DESK1)
   { target = DEVICE_ID_DESK1; } 
-  else if (targetNode == "desk2")
+  else if (targetNode == DEVICE_NOD_DESK2)
   { target = DEVICE_ID_DESK2; } 
-  else if (targetNode == "kitchen1")
+  else if (targetNode == DEVICE_NOD_KITCHEN1)
   { target = DEVICE_ID_KITCHEN1; } 
-  else if (targetNode == "longboard1")
+  else if (targetNode == DEVICE_NOD_LONGBOARD1)
   { target = DEVICE_ID_LONGBOARD1; }
-  //else if (targetNode == "testNode")
-  //{ target = DEVICE_ID_LONGBOARD1; }
-  else if (targetNode == "leaningbookshelves1")
+  else if (targetNode == DEVICE_NOD_LEANINGBOOKSHELVES1)
   { target = DEVICE_ID_LEANINGBOOKSHELVES1; }
-  else if (targetNode == "futonbed1" )
+  else if (targetNode == DEVICE_NOD_FUTONBED1 )
   { target = DEVICE_ID_FUTONBED1; }
+  else if (targetNode == DEVICE_NOD_LIVINGROOMDIVIDER1)
+  { target = DEVICE_ID_LIVINGROOMDIVIDER1; }
 
   if (target == 0) { /* SYSTEM SPARE */ }
   else if (target == 1) { 
@@ -245,14 +249,15 @@ void checkDevicesStatus() {
   String ds = "offline";
   for (int i = 0; i < 8; i++) 
   {
-    if (i == 0) { target = DEVICE_ID_BRIDGE1; cd1 = "bridge1/available"; }
-    else if (i == 1) { target = DEVICE_ID_STAIRS1; cd1 = "house/stairs1/available"; }
-    else if (i == 2) { target = DEVICE_ID_DESK1; cd1 = "house/desk1/available"; }
-    else if (i == 3) { target = DEVICE_ID_DESK2; cd1 = "house/desk2/available"; }
-    else if (i == 4) { target = DEVICE_ID_KITCHEN1; cd1 = "house/kitchen1/available"; }
-    else if (i == 5) { target = DEVICE_ID_LONGBOARD1; cd1 = "house/longboard1/available"; }
-    else if (i == 6) { target = DEVICE_ID_LEANINGBOOKSHELVES1; cd1 = "house/leaningbookshelves1/available"; }
-    else if (i == 7) { target = DEVICE_ID_FUTONBED1; cd1 = "house/futonbed1/available"; }
+    if (i == 0) { target = DEVICE_ID_BRIDGE1; cd1 = DEVICE_CD1_BRIDGE1; }
+    else if (i == 1) { target = DEVICE_ID_STAIRS1; cd1 = DEVICE_CD1_STAIRS1; }
+    else if (i == 2) { target = DEVICE_ID_DESK1; cd1 = DEVICE_CD1_DESK1; }
+    else if (i == 3) { target = DEVICE_ID_DESK2; cd1 = DEVICE_CD1_DESK2; }
+    else if (i == 4) { target = DEVICE_ID_KITCHEN1; cd1 = DEVICE_CD1_KITCHEN1; }
+    else if (i == 5) { target = DEVICE_ID_LONGBOARD1; cd1 = DEVICE_CD1_LONGBOARD1; }
+    else if (i == 6) { target = DEVICE_ID_LEANINGBOOKSHELVES1; cd1 = DEVICE_CD1_LEANINGBOOKSHELVES1; }
+    else if (i == 7) { target = DEVICE_ID_FUTONBED1; cd1 = DEVICE_CD1_FUTONBED1; }
+    else if (i == 8) { target = DEVICE_ID_LIVINGROOMDIVIDER1; cd1 = DEVICE_CD1_LIVINGROOMDIVIDER1; }
 
     if (mesh.isConnected(target)) {
       // is device is online then broadcast online mqtt message
