@@ -19,7 +19,7 @@ void mqqtConnect()
       mqttClient.subscribe("house/testNode/#");
       mqttClient.subscribe("sunrise");
       mqttClient.subscribe("sunset");
-      if (DEBUG_COMMS) { Serial.printf("MQTT connected."); Serial.println(); }
+      if (DEBUG_COMMS) { Serial.println("MQTT connected."); }
     }
 }
 
@@ -43,8 +43,7 @@ boolean mqttReconnect()
     mqttClient.subscribe("house/testNode/#");
     mqttClient.subscribe("sunrise");
     mqttClient.subscribe("sunset");
-    if (DEBUG_COMMS) { Serial.printf("MQTT connected."); Serial.println(); }
-    checkDevicesStatus();
+    if (DEBUG_COMMS) { Serial.println("MQTT reconnected."); }
   }
   return mqttClient.connected();
 }
@@ -247,7 +246,7 @@ void checkDevicesStatus() {
   String cd1 = "h";
   //String ds = DEVICE_OFFLINE;
   String ds = "offline";
-  for (int i = 0; i < 8; i++) 
+  for (int i = 0; i < 9; i++) 
   {
     if (i == 0) { target = DEVICE_ID_BRIDGE1; cd1 = DEVICE_CD1_BRIDGE1; }
     else if (i == 1) { target = DEVICE_ID_STAIRS1; cd1 = DEVICE_CD1_STAIRS1; }

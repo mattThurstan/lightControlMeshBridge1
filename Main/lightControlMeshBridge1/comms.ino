@@ -26,3 +26,27 @@ IPAddress getlocalIP() {
   return IPAddress(mesh.getStationIP());
 }
 
+void attachedNodes() {
+  
+//    for (SimpleList<uint32_t>::iterator itr = mesh.getNodeList().begin(); itr != mesh.getNodeList().end(); ++itr)
+//    {
+//      Serial.print(*itr);
+//      Serial.println(" : ");
+//    }
+//    Serial.println();
+
+//    Serial.print("Attached Node IDs are ");
+//    Serial.println(mesh.subConnectionJson()); //.c_str()
+
+//    nodes = mesh.getNodeList();
+//    Serial.printf("Num nodes: %d\n", nodes.size());
+//    Serial.printf("Attached Node IDs are : ");
+    
+//    SimpleList::iterator node = nodes.begin();
+//    while (node != nodes.end()) {
+//      Serial.printf(" %u", *node);
+//      node++; 
+//    }
+
+}
+  

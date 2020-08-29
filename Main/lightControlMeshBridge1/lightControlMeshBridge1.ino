@@ -52,7 +52,7 @@
 
 /*----------------------------system----------------------------*/
 const String _progName = "lightControlMeshBridge1"; // bridge Mesh to WIFI
-const String _progVers = "0.576";                   // moved some strings
+const String _progVers = "0.577";                   // disconnect/reconnect
 
 boolean DEBUG_GEN = false;                          // realtime serial debugging output - general
 boolean DEBUG_COMMS = false;                        // realtime serial debugging output - comms
@@ -68,6 +68,9 @@ IPAddress myIP(0,0,0,0);
 painlessMesh  mesh;
 WiFiClient wifiClient;
 SimpleList<uint32_t> nodes;
+
+unsigned long _lastReconnectAttempt = 0;
+const long _interval = 5000;
 
 void receivedCallback( const uint32_t &from, const String &msg );
 void mqttCallback(char* topic, byte* payload, unsigned int length);
@@ -89,11 +92,6 @@ void nodeTimeAdjustedCallback(int32_t offset) {
 
 PubSubClient mqttClient(MQTT_BROKER_IP, MQTT_BROKER_PORT, mqttCallback, wifiClient);
 
-
-//int _ledState = LOW;
-//unsigned long _previousMillis = 0;
-unsigned long _lastReconnectAttempt = 0;
-const long _interval = 5000;
 
 /*----------------------------MAIN----------------------------*/
 void setup() {
@@ -122,8 +120,8 @@ void setup() {
   Serial.println("");
   
   
-  delay(1500);
   _lastReconnectAttempt = 0;
+  delay(1500);
 }
 
 void loop() {
@@ -138,92 +136,26 @@ void loop() {
       String s = String(mesh.getNodeId());
       Serial.print("Device Node ID is ");
       Serial.println(s);
+      //attachedNodes();
     }
-    //Serial.print("Attached Node IDs are ");
-    //Serial.println(mesh.subConnectionJson()); //.c_str()
-
-    //nodes = mesh.getNodeList();
-    //Serial.printf("Num nodes: %d\n", nodes.size());
-    //Serial.printf("Attached Node IDs are : ");
-    
-    //SimpleList::iterator node = nodes.begin();
-    //while (node != nodes.end()) {
-    //  Serial.printf(" %u", *node);
-    //  node++; 
-    //}
-//    for (SimpleList<uint32_t>::iterator itr = mesh.getNodeList().begin(); itr != mesh.getNodeList().end(); ++itr)
-//    {
-//      Serial.print(*itr);
-//      Serial.println(" : ");
-//    }
-//    Serial.println();
-
-    //mqqtConnect(); 
+    mqqtConnect();
   }
 
-//  unsigned long currentMillis = millis();
-//  if (!mqttClient.connected()) {
-//    // reconnect
-//  } else {
-//    if (currentMillis - _previousMillis >= _interval) {
-//      _previousMillis = currentMillis;
-//      //mqttClient.publish("house/bridge1/available","online");
-//      //if (DEBUG_COMMS) { Serial.println("bridge: Sent msg available online"); }
-//    }
-//  }
-  
-//  mqttClient.loop();
-
-    unsigned long now = millis();
+  unsigned long now = millis();
   if (!mqttClient.connected()) {
     if (now - _lastReconnectAttempt > _interval) {
       _lastReconnectAttempt = now;
       // Attempt to reconnect
+      if (DEBUG_COMMS) { Serial.println("Attempting to reconnect to MQTT broker..."); }
       if (mqttReconnect()) {
+        //attachedNodes();
         _lastReconnectAttempt = 0;
+        if (DEBUG_COMMS) { Serial.println("Reconnect to MQTT broker successful!"); }
       }
     }
   } else {
     // Client connected
-    //checkDevicesStatus(); // this needs to be every 30 secs or more
     mqttClient.loop();
   }
   
 } // END setup
-  
-//  EVERY_N_SECONDS(10) {
-//    for (SimpleList<uint32_t>::iterator itr = mesh.getNodeList().begin(); itr != mesh.getNodeList().end(); ++itr)
-//    {
-//      Serial.print(*itr);
-//      Serial.println(" : ");
-//    }
-//    Serial.println();
-
-//    Serial.print("Attached Node IDs are ");
-//    Serial.println(mesh.subConnectionJson()); //.c_str()
-
-//    nodes = mesh.getNodeList();
-//    Serial.printf("Num nodes: %d\n", nodes.size());
-//    Serial.printf("Attached Node IDs are : ");
-    
-//    SimpleList::iterator node = nodes.begin();
-//    while (node != nodes.end()) {
-//      Serial.printf(" %u", *node);
-//      node++; 
-//    }
-
-//  } // END EVERY_N_SECONDS
-  
-//  unsigned long currentMillis = millis();
-//  if (mesh.isConnected(mesh.getNodeId())) { //DEBUG_COMMS && 
-//    if (currentMillis - _previousMillis >= _interval) {
-//      _previousMillis = currentMillis;
-//      if (_ledState == LOW) {
-//        _ledState = HIGH;  // Note that this switches the LED *off*
-//      } else {
-//        _ledState = LOW;  // Note that this switches the LED *on*
-//      }
-//      digitalWrite(LED_BUILTIN, _ledState);
-//    }
-//  }
-  
