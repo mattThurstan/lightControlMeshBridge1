@@ -1,3 +1,4 @@
+
 /*
     'lightControlMeshBridge1' by Thurstan. WIFI to Mesh bridge for MQTT control.
     Copyright (C) 2020 MTS Standish (Thurstan|mattKsp)
@@ -52,7 +53,7 @@
 
 /*----------------------------system----------------------------*/
 const String _progName = "lightControlMeshBridge1"; // bridge Mesh to WIFI
-const String _progVers = "0.577";                   // disconnect/reconnect
+const String _progVers = "0.578";                   // not reconnecting to MQTT broker when hassio reboots (too fast i think)
 
 boolean DEBUG_GEN = false;                          // realtime serial debugging output - general
 boolean DEBUG_COMMS = false;                        // realtime serial debugging output - comms
@@ -158,4 +159,4 @@ void loop() {
     mqttClient.loop();
   }
   
-} // END setup
+}

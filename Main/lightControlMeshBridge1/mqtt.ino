@@ -199,7 +199,9 @@ void parseMQTT(String topic, String msg)
       if(msg == "ON") { 
         //DEBUG_COMMS = true;
         checkDevicesStatus();
-        //mqttClient.publish("house/bridge1/debug/comms/status", o1.c_str()); 
+        // hack
+        mqttClient.publish("house/bridge1/available","online");
+        mqttClient.publish("house/bridge1/status","ON");
       } 
       else if(msg == "OFF") { 
         //DEBUG_COMMS = false;
