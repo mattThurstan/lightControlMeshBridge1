@@ -53,7 +53,7 @@
 
 /*----------------------------system----------------------------*/
 const String _progName = "lightControlMeshBridge1"; // bridge Mesh to WIFI
-const String _progVers = "0.6";                     // emergency protocols
+const String _progVers = "0.601";                   // Gardening For Nomes
 
 boolean DEBUG_GEN = false;                          // realtime serial debugging output - general
 boolean DEBUG_COMMS = false;                        // realtime serial debugging output - comms
@@ -105,6 +105,8 @@ void setup() {
   Serial.print(_progName);
   Serial.print(", volume");
   Serial.print(_progVers);
+  Serial.println();
+  Serial.print(F("Brought to you live from the Gardening For Nomes network headquarters!"));
   Serial.println();
   Serial.print("..");
   Serial.println();
