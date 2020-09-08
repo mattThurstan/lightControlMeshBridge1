@@ -6,6 +6,7 @@ void setupMesh()
   // Channel set to .. Make sure to use the same channel for your mesh and for you other
   // network (STATION_SSID)
   mesh.init( MESH_NAME, MESH_PASSWORD, MESH_PORT, WIFI_AP_STA, STATION_CHANNEL );
+  //mesh.init( MESH_NAME, MESH_PASSWORD, MESH_PORT, WIFI_AP_STA, STATION_CHANNEL, 1 );  // HIDDEN
   
   //mesh.init(String ssid, String password, Scheduler *baseScheduler, uint16_t port = 5555, WiFiMode_t connectMode = WIFI_AP_STA, uint8_t channel = 1, uint8_t hidden = 0, uint8_t maxconn = MAX_CONN);
   //mesh.init(String ssid, String password, uint16_t port = 5555, WiFiMode_t connectMode = WIFI_AP_STA, uint8_t channel = 1, uint8_t hidden = 0, uint8_t maxconn = MAX_CONN);
@@ -20,6 +21,16 @@ void setupMesh()
   
   mesh.stationManual(STATION_SSID, STATION_PASSWORD);
   mesh.setHostname(HOSTNAME);
+}
+
+void turnOffComms() 
+{
+  DEBUG_COMMS = false;
+  publishDeviceOffline();
+  turnOffMesh();
+  turnOffWifi();
+  DEBUG_GEN = false;
+  turnOffSerial();
 }
 
 IPAddress getlocalIP() {

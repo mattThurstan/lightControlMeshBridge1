@@ -1,4 +1,25 @@
 /*----------------------------MQTT----------------------------*/
+void mqqtSubscribeList1() 
+{
+  mqttClient.subscribe("mesh/to/#");
+  mqttClient.subscribe(DEVICE_SUB_BRIDGE1);
+  mqttClient.subscribe(DEVICE_SUB_STAIRS1);
+  mqttClient.subscribe(DEVICE_SUB_DESK1);
+  mqttClient.subscribe(DEVICE_SUB_DESK2);
+  mqttClient.subscribe(DEVICE_SUB_KITCHEN1);
+  mqttClient.subscribe(DEVICE_SUB_LONGBOARD1);
+  mqttClient.subscribe(DEVICE_SUB_LEANINGBOOKSHELVES1);
+  mqttClient.subscribe(DEVICE_SUB_FUTONBED1);
+  mqttClient.subscribe(DEVICE_SUB_LIVINGROOMDIVIDER1);
+  mqttClient.subscribe("house/testNode/#");
+  mqttClient.subscribe("house/sunrise");
+  mqttClient.subscribe("house/sunset");
+  mqttClient.subscribe("house/breath");
+  //mqttClient.subscribe("house/reset");
+  mqttClient.subscribe("house/restart");
+  mqttClient.subscribe("house/lockdown");
+}
+
 void mqqtConnect()
 {
     if (mqttClient.connect(HOSTNAME, MQTT_BROKER_USERNAME, MQTT_BROKER_PASSWORD))   // "thurstanMeshBridge"
@@ -6,19 +27,7 @@ void mqqtConnect()
       //mqttClient.publish("mesh/from/bridge1","Ready!");
       mqttClient.publish("house/bridge1/available","online");
       mqttClient.publish("house/bridge1/status","ON");
-      mqttClient.subscribe("mesh/to/#");
-      mqttClient.subscribe(DEVICE_SUB_BRIDGE1);
-      mqttClient.subscribe(DEVICE_SUB_STAIRS1);
-      mqttClient.subscribe(DEVICE_SUB_DESK1);
-      mqttClient.subscribe(DEVICE_SUB_DESK2);
-      mqttClient.subscribe(DEVICE_SUB_KITCHEN1);
-      mqttClient.subscribe(DEVICE_SUB_LONGBOARD1);
-      mqttClient.subscribe(DEVICE_SUB_LEANINGBOOKSHELVES1);
-      mqttClient.subscribe(DEVICE_SUB_FUTONBED1);
-      mqttClient.subscribe(DEVICE_SUB_LIVINGROOMDIVIDER1);
-      mqttClient.subscribe("house/testNode/#");
-      mqttClient.subscribe("sunrise");
-      mqttClient.subscribe("sunset");
+      mqqtSubscribeList1();
       if (DEBUG_COMMS) { Serial.println("MQTT connected."); }
     }
 }
@@ -29,20 +38,7 @@ boolean mqttReconnect()
     // Once connected, publish an announcement...
     mqttClient.publish("house/bridge1/available","online");
     mqttClient.publish("house/bridge1/status","ON");
-    // ... and resubscribe
-    mqttClient.subscribe("mesh/to/#");
-    mqttClient.subscribe(DEVICE_SUB_BRIDGE1);
-    mqttClient.subscribe(DEVICE_SUB_STAIRS1);
-    mqttClient.subscribe(DEVICE_SUB_DESK1);
-    mqttClient.subscribe(DEVICE_SUB_DESK2);
-    mqttClient.subscribe(DEVICE_SUB_KITCHEN1);
-    mqttClient.subscribe(DEVICE_SUB_LONGBOARD1);
-    mqttClient.subscribe(DEVICE_SUB_LEANINGBOOKSHELVES1);
-    mqttClient.subscribe(DEVICE_SUB_FUTONBED1);
-    mqttClient.subscribe(DEVICE_SUB_LIVINGROOMDIVIDER1);
-    mqttClient.subscribe("house/testNode/#");
-    mqttClient.subscribe("sunrise");
-    mqttClient.subscribe("sunset");
+    mqqtSubscribeList1(); // ... and resubscribe
     if (DEBUG_COMMS) { Serial.println("MQTT reconnected."); }
   }
   return mqttClient.connected();
@@ -111,20 +107,44 @@ void mqttCallback(char* topic, uint8_t* payload, unsigned int length) {
     //uint8_t firstTargetStrIndex = targetStr.indexOf('/');
     //String targetNode = targetStr.substring(0, firstTargetStrIndex);  //get the device name - don't need
     //String targetSub = targetStr.substring(firstTargetStrIndex);      //get the rest of the address
-    String targetSub = targetStr.substring(12);      // get the rest of the address
+    //String targetSub = targetStr.substring(12);      // get the rest of the address
     //add the rest of the address to the beginning of the message
-    String ts = targetSub;
-    ts += ":";
-    ts += msg;
-    mesh.sendBroadcast(ts); //send message
+    //String ts = targetSub;
+    //ts += ":";
+    //ts += msg;
+    //mesh.sendBroadcast(ts); //send message
+    stripAndBroadcastGlobalMeshMsg(targetStr, 12, msg);
   }
-  else if(targetStr == "sunrise") { mesh.sendBroadcast(msg); }
-  else if(targetStr == "sunset") { mesh.sendBroadcast(msg); }
-  else if(targetStr == "breath") { mesh.sendBroadcast(msg); }
+  else if(targetStr == "house/sunrise") { stripAndBroadcastGlobalMeshMsg(targetStr, 6, msg);                                }
+  else if(targetStr == "house/sunset")  { stripAndBroadcastGlobalMeshMsg(targetStr, 6, msg);                                }
+  else if(targetStr == "house/breath")  { stripAndBroadcastGlobalMeshMsg(targetStr, 6, msg);                                }
+  else if(targetStr == "house/reset")   { stripAndBroadcastGlobalMeshMsg(targetStr, 6, msg); if(msg == "ON") { doReset(); } }
+  else if(targetStr == "house/restart") { 
+    stripAndBroadcastGlobalMeshMsg(targetStr, 6, msg); 
+    uint8_t restartTime = msg.toInt();
+    if (restartTime < 0 || restartTime > 255) { return; /* do nothing... */ } 
+    else { doRestart(restartTime); }
+  }
+  else if(targetStr == "house/lockdown") 
+  { 
+    stripAndBroadcastGlobalMeshMsg(targetStr, 6, msg);
+    
+    uint8_t severity = msg.toInt();
+    if (severity < 0 || severity > 255) { return; /* do nothing... */ } 
+    else { doLockdown(severity); } 
+  }
   else
   {
     parseMQTT(targetStr, msg);
   }
+}
+
+void stripAndBroadcastGlobalMeshMsg(String targetStr, uint8_t charactersToRemove, String msg) {
+  String targetSub = targetStr.substring(charactersToRemove); // remove the ammount of characters at the start and get the rest of the address 
+  String message = targetSub; // create a new string (or it has 'issues') and set the remainder of the address at the beginning of the mesh message
+  message += ":";
+  message += msg;
+  mesh.sendBroadcast(message); // send global mesh message
 }
 
 /*----------------------------MQTT message parsing----------------------------*/
@@ -197,20 +217,23 @@ void parseMQTT(String topic, String msg)
     else if(targetSub == "debug/available/scan") 
     {
       if(msg == "ON") { 
-        //DEBUG_COMMS = true;
         checkDevicesStatus();
         // hack
         mqttClient.publish("house/bridge1/available","online");
         mqttClient.publish("house/bridge1/status","ON");
       } 
-      else if(msg == "OFF") { 
-        //DEBUG_COMMS = false;
-        //mqttClient.publish("house/bridge1/debug/comms/status", o1.c_str()); 
-      }
+    }
+    else if(targetSub == "debug/reset") { if(msg == "ON") { doReset(); } }
+    else if(targetSub == "debug/restart") 
+    {
+      uint8_t restartTime = msg.toInt();
+      if (restartTime < 0 || restartTime > 255) { return; /* do nothing... */ } 
+      else { doRestart(restartTime); }
     }
   }
   else if (target == 2) { /* SYSTEM SPARE */ }
   else {
+    // translate addresses and re-broadcast into the mesh
     if (mesh.isConnected(target))
     {
       //add the rest of the address to the beginning of the message
@@ -242,6 +265,8 @@ void buildMQTT() { }
 void parseMessages() { }
 void buildMessages() { }
 
+
+/*----------------------------check if devices are online---------------------*/
 void checkDevicesStatus() {
   // check the mesh to see if known devices are online
   uint32_t target;

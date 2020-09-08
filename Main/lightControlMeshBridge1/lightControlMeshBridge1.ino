@@ -53,7 +53,7 @@
 
 /*----------------------------system----------------------------*/
 const String _progName = "lightControlMeshBridge1"; // bridge Mesh to WIFI
-const String _progVers = "0.578";                   // not reconnecting to MQTT broker when hassio reboots (too fast i think)
+const String _progVers = "0.6";                     // emergency protocols
 
 boolean DEBUG_GEN = false;                          // realtime serial debugging output - general
 boolean DEBUG_COMMS = false;                        // realtime serial debugging output - comms
@@ -101,8 +101,9 @@ void setup() {
   Serial.begin(115200);
   
   Serial.println();
+  Serial.print(F("Welcome to "));
   Serial.print(_progName);
-  Serial.print(" v");
+  Serial.print(", volume");
   Serial.print(_progVers);
   Serial.println();
   Serial.print("..");
@@ -131,6 +132,7 @@ void loop() {
 
   if(myIP != getlocalIP())
   {
+    // this will get triggered on the very first loop
     myIP = getlocalIP();
     if (DEBUG_COMMS) { 
       Serial.println("My IP is " + myIP.toString());
@@ -140,6 +142,7 @@ void loop() {
       //attachedNodes();
     }
     mqqtConnect();
+    checkDevicesStatus();
   }
 
   unsigned long now = millis();
@@ -150,6 +153,7 @@ void loop() {
       if (DEBUG_COMMS) { Serial.println("Attempting to reconnect to MQTT broker..."); }
       if (mqttReconnect()) {
         //attachedNodes();
+        checkDevicesStatus();
         _lastReconnectAttempt = 0;
         if (DEBUG_COMMS) { Serial.println("Reconnect to MQTT broker successful!"); }
       }
