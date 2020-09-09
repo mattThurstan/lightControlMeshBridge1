@@ -25,8 +25,8 @@ void setupMesh()
 
 void turnOffComms() 
 {
-  DEBUG_COMMS = false;
   publishDeviceOffline();
+  DEBUG_COMMS = false;
   turnOffMesh();
   turnOffWifi();
   DEBUG_GEN = false;

@@ -53,7 +53,7 @@
 
 /*----------------------------system----------------------------*/
 const String _progName = "lightControlMeshBridge1"; // bridge Mesh to WIFI
-const String _progVers = "0.601";                   // Gardening For Nomes
+const String _progVers = "0.602";                   // 
 
 boolean DEBUG_GEN = false;                          // realtime serial debugging output - general
 boolean DEBUG_COMMS = false;                        // realtime serial debugging output - comms

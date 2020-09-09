@@ -35,7 +35,7 @@ void doReset() {
 
 /* Restart the device (with a delay) */
 void doRestart(uint8_t restartTime) {
-  // delay for restartTime
+  delay(restartTime); // delay for restartTime
   deviceRestart(); // ..and restart
 }
 
