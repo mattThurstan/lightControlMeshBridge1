@@ -28,7 +28,7 @@ void mqqtConnect()
       mqttClient.publish("house/bridge1/available","online");
       mqttClient.publish("house/bridge1/status","ON");
       mqqtSubscribeList1();
-      if (DEBUG_COMMS) { Serial.println("MQTT connected."); }
+      if (DEBUG_COMMS && Serial) { Serial.println("MQTT connected."); }
     }
 }
 
@@ -39,7 +39,7 @@ boolean mqttReconnect()
     mqttClient.publish("house/bridge1/available","online");
     mqttClient.publish("house/bridge1/status","ON");
     mqqtSubscribeList1(); // ... and resubscribe
-    if (DEBUG_COMMS) { Serial.println("MQTT reconnected."); }
+    if (DEBUG_COMMS && Serial) { Serial.println("MQTT reconnected."); }
   }
   return mqttClient.connected();
 }
@@ -47,13 +47,13 @@ boolean mqttReconnect()
 /*----------------------------MQTT callbacks----------------------------*/
 // callback for Mesh messages
 void receivedCallback( const uint32_t &from, const String &msg ) {
-  if (DEBUG_COMMS) { Serial.printf("bridge: Received from %u msg=%s\n", from, msg.c_str()); Serial.println(); }
+  if (DEBUG_COMMS && Serial) { Serial.printf("bridge: Received from %u msg=%s\n", from, msg.c_str()); Serial.println(); }
   
   uint8_t firstMsgIndex = msg.indexOf(':');
   String targetSub = msg.substring(0, firstMsgIndex);
   String msgSub = msg.substring(firstMsgIndex+1);
 
-  if (DEBUG_COMMS) { 
+  if (DEBUG_COMMS && Serial) { 
     Serial.printf("mesh msg callback msgSub: ");
     Serial.println(msgSub);
   }
@@ -82,7 +82,7 @@ void receivedCallback( const uint32_t &from, const String &msg ) {
 
 // callback for LAN messages
 void mqttCallback(char* topic, uint8_t* payload, unsigned int length) {
-  if (DEBUG_COMMS) { Serial.printf("bridge: Received MQTT from network: msg=%s\n", topic); Serial.println(); }
+  if (DEBUG_COMMS && Serial) { Serial.printf("bridge: Received MQTT from network: msg=%s\n", topic); Serial.println(); }
   
   char* cleanPayload = (char*)malloc(length+1);
   payload[length] = '\0';
@@ -98,7 +98,7 @@ void mqttCallback(char* topic, uint8_t* payload, unsigned int length) {
     if(msg == "getNodes")
     {
       mqttClient.publish("mesh/from/bridge", mesh.subConnectionJson().c_str());
-      if (DEBUG_COMMS) { Serial.printf("bridge: Sent msg to mesh: targetStr=%s\n", topic); Serial.println(); }
+      if (DEBUG_COMMS && Serial) { Serial.printf("bridge: Sent msg to mesh: targetStr=%s\n", topic); Serial.println(); }
     }
   }
   else if(targetStr == "mesh/to/all") 
@@ -159,7 +159,7 @@ void parseMQTT(String topic, String msg)
   String targetNode = targetStr2.substring(0, firstTargetStrIndex);  //get the device name
   String targetSub = targetStr2.substring(firstTargetStrIndex+1);      //get the rest of the address
 
-  if (DEBUG_COMMS) { 
+  if (DEBUG_COMMS && Serial) { 
     Serial.printf("parseMQTT targetSub: ");
     Serial.println(targetSub);
     Serial.printf("parseMQTT msg: ");
@@ -243,7 +243,7 @@ void parseMQTT(String topic, String msg)
       //send message to target
       mesh.sendSingle(target, ts);
       //the target will decode all it's sub-parts
-      if (DEBUG_COMMS) { 
+      if (DEBUG_COMMS && Serial) { 
         Serial.printf("bridge: Sent msg to mesh: "); 
         Serial.print(ts);
         Serial.print(",");
@@ -258,7 +258,7 @@ void parseMQTT(String topic, String msg)
       mqttClient.publish("mesh/from/bridge", sm.c_str());
     }
   }
-  if (DEBUG_COMMS) { Serial.println(); }
+  if (DEBUG_COMMS && Serial) { Serial.println(); }
 }
 
 void buildMQTT() { }
@@ -304,7 +304,7 @@ void checkDevicesStatus() {
     if (i == 0) { ds = "online"; }  // hack cos we know this (bridge) is online
     mqttClient.publish(cd1.c_str(), ds.c_str());
     
-    if (DEBUG_COMMS) { 
+    if (DEBUG_COMMS && Serial) { 
       Serial.print("bridge: Check and publish device online status, "); 
       Serial.print(cd1);
       Serial.print(" - ");

@@ -1,7 +1,7 @@
 
 /*
     'lightControlMeshBridge1' by Thurstan. WIFI to Mesh bridge for MQTT control.
-    Copyright (C) 2020 MTS Standish (Thurstan|mattKsp)
+    Copyright (C) 2021 MTS Standish (Thurstan|mattKsp)
     
     https://github.com/mattThurstan/
 
@@ -42,18 +42,18 @@
 //************************************************************
 
 /*----------------------------libraries----------------------------*/
+#include <MT_LightControlDefines.h> 
 #include <Arduino.h>
 #include <painlessMesh.h>                           // https://github.com/gmag11/painlessMesh
 #include <PubSubClient.h>
 #include <WiFiClient.h>
 #include <ESP8266WiFi.h>
 #include <ESPAsyncTCP.h>
-#include <MT_LightControlDefines.h> 
 
 
 /*----------------------------system----------------------------*/
 const String _progName = "lightControlMeshBridge1"; // bridge Mesh to WIFI
-const String _progVers = "0.603";                   // comms
+const String _progVers = "0.605";                   // 2021
 
 boolean DEBUG_GEN = false;                          // realtime serial debugging output - general
 boolean DEBUG_COMMS = false;                        // realtime serial debugging output - comms
@@ -78,17 +78,17 @@ void mqttCallback(char* topic, byte* payload, unsigned int length);
 
 void newConnectionCallback(uint32_t nodeId) {
   checkDevicesStatus();
-  if (DEBUG_COMMS) { Serial.printf("--> lightControlMeshBridge1: New Connection, nodeId = %u\n", nodeId); }
+  if (DEBUG_COMMS && Serial) { Serial.printf("--> lightControlMeshBridge1: New Connection, nodeId = %u\n", nodeId); }
 }
 
 void changedConnectionCallback() {
   checkDevicesStatus();
-  if (DEBUG_COMMS) { Serial.printf("Changed connections %s\n",mesh.subConnectionJson().c_str()); }
+  if (DEBUG_COMMS && Serial) { Serial.printf("Changed connections %s\n",mesh.subConnectionJson().c_str()); }
 }
 
 void nodeTimeAdjustedCallback(int32_t offset) {
   checkDevicesStatus(); // ..too much?
-  if (DEBUG_COMMS) { Serial.printf("Adjusted time %u. Offset = %d\n", mesh.getNodeTime(),offset); }
+  if (DEBUG_COMMS && Serial) { Serial.printf("Adjusted time %u. Offset = %d\n", mesh.getNodeTime(),offset); }
 }
 
 PubSubClient mqttClient(MQTT_BROKER_IP, MQTT_BROKER_PORT, mqttCallback, wifiClient);
@@ -136,7 +136,7 @@ void loop() {
   {
     // this will get triggered on the very first loop
     myIP = getlocalIP();
-    if (DEBUG_COMMS) { 
+    if (DEBUG_COMMS && Serial) { 
       Serial.println("My IP is " + myIP.toString());
       String s = String(mesh.getNodeId());
       Serial.print("Device Node ID is ");
@@ -152,12 +152,12 @@ void loop() {
     if (now - _lastReconnectAttempt > _interval) {
       _lastReconnectAttempt = now;
       // Attempt to reconnect
-      if (DEBUG_COMMS) { Serial.println("Attempting to reconnect to MQTT broker..."); }
+      if (DEBUG_COMMS && Serial) { Serial.println("Attempting to reconnect to MQTT broker..."); }
       if (mqttReconnect()) {
         //attachedNodes();
         checkDevicesStatus();
         _lastReconnectAttempt = 0;
-        if (DEBUG_COMMS) { Serial.println("Reconnect to MQTT broker successful!"); }
+        if (DEBUG_COMMS && Serial) { Serial.println("Reconnect to MQTT broker successful!"); }
       }
     }
   } else {
