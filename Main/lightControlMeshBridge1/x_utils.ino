@@ -1,10 +1,5 @@
 /*----------------------------utils----------------------------*/
 
-void publishDeviceOffline() {
-  mqttClient.publish("house/bridge1/status", "OFF"); 
-  mqttClient.publish("house/bridge1/available","offline");
-}
-
 void deviceRestart() {
   ESP.restart();
 }

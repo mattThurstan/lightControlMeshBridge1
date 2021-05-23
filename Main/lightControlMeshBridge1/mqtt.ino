@@ -4,11 +4,11 @@ void mqqtSubscribeList1()
   mqttClient.subscribe("mesh/to/#");
   mqttClient.subscribe(DEVICE_SUB_BRIDGE1);
   mqttClient.subscribe(DEVICE_SUB_STAIRS1);
-  mqttClient.subscribe(DEVICE_SUB_DESK1);
+  mqttClient.subscribe(DEVICE_SUB_DESK1); // e.g. house/desk1/#
   mqttClient.subscribe(DEVICE_SUB_DESK2);
   mqttClient.subscribe(DEVICE_SUB_KITCHEN1);
   mqttClient.subscribe(DEVICE_SUB_LONGBOARD1);
-  mqttClient.subscribe(DEVICE_SUB_LEANINGBOOKSHELVES1);
+  //mqttClient.subscribe(DEVICE_SUB_LEANINGBOOKSHELVES1); // moved to WIFI
   mqttClient.subscribe(DEVICE_SUB_FUTONBED1);
   mqttClient.subscribe(DEVICE_SUB_LIVINGROOMDIVIDER1);
   mqttClient.subscribe("house/testNode/#");
@@ -42,6 +42,11 @@ boolean mqttReconnect()
     if (DEBUG_COMMS && Serial) { Serial.println("MQTT reconnected."); }
   }
   return mqttClient.connected();
+}
+
+void publishDeviceOffline() {
+  mqttClient.publish("house/bridge1/status", "OFF"); 
+  mqttClient.publish("house/bridge1/available","offline");
 }
 
 /*----------------------------MQTT callbacks----------------------------*/
@@ -281,7 +286,7 @@ void checkDevicesStatus() {
     else if (i == 3) { target = DEVICE_ID_DESK2; cd1 = DEVICE_CD1_DESK2; }
     else if (i == 4) { target = DEVICE_ID_KITCHEN1; cd1 = DEVICE_CD1_KITCHEN1; }
     else if (i == 5) { target = DEVICE_ID_LONGBOARD1; cd1 = DEVICE_CD1_LONGBOARD1; }
-    else if (i == 6) { target = DEVICE_ID_LEANINGBOOKSHELVES1; cd1 = DEVICE_CD1_LEANINGBOOKSHELVES1; }
+    // else if (i == 6) { target = DEVICE_ID_LEANINGBOOKSHELVES1; cd1 = DEVICE_CD1_LEANINGBOOKSHELVES1; } // moved to WIFI
     else if (i == 7) { target = DEVICE_ID_FUTONBED1; cd1 = DEVICE_CD1_FUTONBED1; }
     else if (i == 8) { target = DEVICE_ID_LIVINGROOMDIVIDER1; cd1 = DEVICE_CD1_LIVINGROOMDIVIDER1; }
 
