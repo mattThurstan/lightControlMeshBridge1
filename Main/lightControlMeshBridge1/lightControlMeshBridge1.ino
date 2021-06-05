@@ -53,7 +53,7 @@
 
 /*----------------------------system----------------------------*/
 const String _progName = "lightControlMeshBridge1"; // bridge Mesh to WIFI
-const String _progVers = "0.606";                   // Moved leaningBookshelvesLight1 to WIFI
+const String _progVers = "0.607";                   // 
 
 boolean DEBUG_GEN = false;                          // realtime serial debugging output - general
 boolean DEBUG_COMMS = false;                        // realtime serial debugging output - comms
@@ -101,12 +101,12 @@ void setup() {
   Serial.begin(115200);
   
   Serial.println();
-  Serial.print(F("Welcome to "));
+  Serial.print("Welcome to ");
   Serial.print(_progName);
   Serial.print(", volume");
   Serial.print(_progVers);
   Serial.println();
-  Serial.print(F("Brought to you live from the Gardening For Nomes network headquarters!"));
+  Serial.print("Brought to you live from the Gardening For Nomes network headquarters!");
   Serial.println();
   Serial.print("..");
   Serial.println();
@@ -115,9 +115,9 @@ void setup() {
   setupMesh();
   
   //everything done? ok then..
-  Serial.print(F("Setup done"));
+  Serial.print("Setup done");
   Serial.println("-----");
-  Serial.print(F("Device Node ID is "));
+  Serial.print("Device Node ID is ");
   String s = String(mesh.getNodeId());
   Serial.println(s);
   Serial.println("-----");
@@ -152,12 +152,12 @@ void loop() {
     if (now - _lastReconnectAttempt > _interval) {
       _lastReconnectAttempt = now;
       // Attempt to reconnect
-      if (DEBUG_COMMS && Serial) { Serial.println("Attempting to reconnect to MQTT broker..."); }
+      if (DEBUG_COMMS && Serial) { Serial.println(F("Attempting to reconnect to MQTT broker...")); }
       if (mqttReconnect()) {
         //attachedNodes();
         checkDevicesStatus();
         _lastReconnectAttempt = 0;
-        if (DEBUG_COMMS && Serial) { Serial.println("Reconnect to MQTT broker successful!"); }
+        if (DEBUG_COMMS && Serial) { Serial.println(F("Reconnect to MQTT broker successful!")); }
       }
     }
   } else {

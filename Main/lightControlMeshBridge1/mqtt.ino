@@ -28,7 +28,7 @@ void mqqtConnect()
       mqttClient.publish("house/bridge1/available","online");
       mqttClient.publish("house/bridge1/status","ON");
       mqqtSubscribeList1();
-      if (DEBUG_COMMS && Serial) { Serial.println("MQTT connected."); }
+      if (DEBUG_COMMS && Serial) { Serial.println(F("MQTT connected.")); }
     }
 }
 
@@ -39,7 +39,7 @@ boolean mqttReconnect()
     mqttClient.publish("house/bridge1/available","online");
     mqttClient.publish("house/bridge1/status","ON");
     mqqtSubscribeList1(); // ... and resubscribe
-    if (DEBUG_COMMS && Serial) { Serial.println("MQTT reconnected."); }
+    if (DEBUG_COMMS && Serial) { Serial.println(F("MQTT reconnected.")); }
   }
   return mqttClient.connected();
 }
