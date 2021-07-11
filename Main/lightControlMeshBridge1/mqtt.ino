@@ -11,6 +11,7 @@ void mqqtSubscribeList1()
   //mqttClient.subscribe(DEVICE_SUB_LEANINGBOOKSHELVES1); // moved to WIFI
   mqttClient.subscribe(DEVICE_SUB_FUTONBED1);
   mqttClient.subscribe(DEVICE_SUB_LIVINGROOMDIVIDER1);
+  mqttClient.subscribe(DEVICE_SUB_LIVINGROOMALCOVE1);
   mqttClient.subscribe("house/testNode/#");
   mqttClient.subscribe("house/sunrise");
   mqttClient.subscribe("house/sunset");
@@ -22,9 +23,8 @@ void mqqtSubscribeList1()
 
 void mqqtConnect()
 {
-    if (mqttClient.connect(HOSTNAME, MQTT_BROKER_USERNAME, MQTT_BROKER_PASSWORD))   // "thurstanMeshBridge"
+    if (mqttClient.connect(HOSTNAME, MQTT_BROKER_USERNAME, MQTT_BROKER_PASSWORD, WILL_TOPIC, 0, true, WILL_MESSAGE))   // "thurstanMeshBridge"
     {
-      //mqttClient.publish("mesh/from/bridge1","Ready!");
       mqttClient.publish("house/bridge1/available","online");
       mqttClient.publish("house/bridge1/status","ON");
       mqqtSubscribeList1();
@@ -80,6 +80,8 @@ void receivedCallback( const uint32_t &from, const String &msg ) {
   { topic += DEVICE_TOP_FUTONBED1; }
   else if (from == DEVICE_ID_LIVINGROOMDIVIDER1)
   { topic += DEVICE_TOP_LIVINGROOMDIVIDER1; }
+  else if (from == DEVICE_ID_LIVINGROOMALCOVE1)
+  { topic += DEVICE_TOP_LIVINGROOMALCOVE1; }
   
   topic += targetSub;
   mqttClient.publish(topic.c_str(), msgSub.c_str());
@@ -138,6 +140,12 @@ void mqttCallback(char* topic, uint8_t* payload, unsigned int length) {
     if (severity < 0 || severity > 255) { return; /* do nothing... */ } 
     else { doLockdown(severity); } 
   }
+  else if(targetStr == "house/channel") 
+  {
+    stripAndBroadcastGlobalMeshMsg(targetStr, 6, msg);
+    //uint8_t channel = msg.toInt();
+    //changeChannel(channel); // Not needed as bridge uses channel from WIFI connection. It is rest of the mesh that needs to match.
+  }
   else
   {
     parseMQTT(targetStr, msg);
@@ -192,6 +200,8 @@ void parseMQTT(String topic, String msg)
   { target = DEVICE_ID_FUTONBED1; }
   else if (targetNode == DEVICE_NOD_LIVINGROOMDIVIDER1)
   { target = DEVICE_ID_LIVINGROOMDIVIDER1; }
+  else if (targetNode == DEVICE_NOD_LIVINGROOMALCOVE1)
+  { target = DEVICE_ID_LIVINGROOMALCOVE1; }
 
   if (target == 0) { /* SYSTEM SPARE */ }
   else if (target == 1) { 
@@ -289,6 +299,7 @@ void checkDevicesStatus() {
     // else if (i == 6) { target = DEVICE_ID_LEANINGBOOKSHELVES1; cd1 = DEVICE_CD1_LEANINGBOOKSHELVES1; } // moved to WIFI
     else if (i == 7) { target = DEVICE_ID_FUTONBED1; cd1 = DEVICE_CD1_FUTONBED1; }
     else if (i == 8) { target = DEVICE_ID_LIVINGROOMDIVIDER1; cd1 = DEVICE_CD1_LIVINGROOMDIVIDER1; }
+    else if (i == 8) { target = DEVICE_ID_LIVINGROOMALCOVE1; cd1 = DEVICE_CD1_LIVINGROOMALCOVE1; }
 
     if (mesh.isConnected(target)) {
       // is device is online then broadcast online mqtt message

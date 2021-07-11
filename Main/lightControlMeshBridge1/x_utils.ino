@@ -1,11 +1,4 @@
 /*----------------------------utils----------------------------*/
-
-void deviceRestart() {
-  ESP.restart();
-}
-
-void deviceShutdown() { /* ??? */ }
-
 void turnOffWifi() {
   if (DEBUG_GEN && Serial) { Serial.println("Disconnecting wifi..."); }
   WiFi.disconnect();
@@ -21,16 +14,25 @@ void turnOffSerial() {
   Serial.end();
 }
 
+void factoryReset() { /* TODO */ }
+
+void deviceShutdown() { /* ??? */ }
+
+void deviceRestart() {
+  ESP.restart();
+}
+
 /*----------------------------main calls-----------------------*/
 /* Reset everything to default. */
 void doReset() {
-  //resetDefaults();
-  //deviceRestart(); // ..and restart
+  resetDefaults();
+  deviceRestart(); // ..and restart
 }
 
 /* Restart the device (with a delay) */
 void doRestart(uint8_t restartTime) {
-  delay(restartTime); // delay for restartTime
+  uint16_t dly = (restartTime * 60 * 1000); // static ???
+  delay(dly);
   deviceRestart(); // ..and restart
 }
 

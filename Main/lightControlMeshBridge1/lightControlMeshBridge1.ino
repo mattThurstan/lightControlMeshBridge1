@@ -38,6 +38,7 @@
 // house/leaningbookshelves1/#
 // house/futonbed1/#
 // house/livingroomdivider1/#
+// house/livingroomalcove1/#
 //       
 //************************************************************
 
@@ -53,7 +54,7 @@
 
 /*----------------------------system----------------------------*/
 const String _progName = "lightControlMeshBridge1"; // bridge Mesh to WIFI
-const String _progVers = "0.607";                   // 
+const String _progVers = "0.609";                   // Added Livingroom Alcove 1
 
 boolean DEBUG_GEN = false;                          // realtime serial debugging output - general
 boolean DEBUG_COMMS = false;                        // realtime serial debugging output - comms
@@ -65,6 +66,7 @@ boolean DEBUG_COMMS = false;                        // realtime serial debugging
 
 IPAddress getlocalIP();
 IPAddress myIP(0,0,0,0);
+uint8_t _stationChannel = STATION_CHANNEL;
 
 painlessMesh  mesh;
 WiFiClient wifiClient;
@@ -111,8 +113,19 @@ void setup() {
   Serial.print("..");
   Serial.println();
   
-  //loadConfig();
+  loadSettings();
   setupMesh();
+
+  /* I think what really needs to happen is:
+   * 1 - First check the channel of the destination SSID
+   * 2 - If channel doesn't match saved channel then:
+   *     A - get SSID channel
+   *     B - boot mesh without WIFI connection using current saved channel
+   *     C - send global channel change with SSID channel (with timed reboot for after bridge reboots)
+   *     D - save SSID channel
+   *     E - reboot normally with new channel, WIFI and mesh
+  */
+  //checkChannel():                     // ???
   
   //everything done? ok then..
   Serial.print("Setup done");
@@ -142,6 +155,10 @@ void loop() {
       Serial.print("Device Node ID is ");
       Serial.println(s);
       //attachedNodes();
+
+      int32_t c = WiFi.channel();
+      Serial.print("WIFI Channel is ");
+      Serial.println(c);
     }
     mqqtConnect();
     checkDevicesStatus();
@@ -164,5 +181,6 @@ void loop() {
     // Client connected
     mqttClient.loop();
   }
-  
+
+  loopSaveSettings();
 }
